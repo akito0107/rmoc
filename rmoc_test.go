@@ -1,7 +1,8 @@
-package rmoc
+package rmoc_test
 
 import (
 	"bytes"
+	"github.com/akito0107/rmoc"
 	"io"
 	"os"
 	"testing"
@@ -9,9 +10,9 @@ import (
 
 func TestCreateFileWithAbort(t *testing.T) {
 	buf := bytes.NewBufferString("test")
-	err:= CreateFileWithAbort(buf, "testdata", "dummy")
+	err:= rmoc.CreateFileWithAbort(buf, "testdata", "dummy")
 
-	if ok, _ := IsFileAlreadyExists(err); !ok {
+	if ok, _ := rmoc.IsFileAlreadyExists(err); !ok {
 		t.Errorf("error must be FileAlreadyExists byt %+v", err)
 	}
 }
@@ -28,7 +29,7 @@ func TestOverrideFile(t *testing.T) {
 	}()
 
 	after := bytes.NewBufferString("after")
-	if err := OverrideFile(after, "testdata", "override.txt"); err != nil {
+	if err := rmoc.OverrideFile(after, "testdata", "override.txt"); err != nil {
 		t.Fatal(err)
 	}
 
