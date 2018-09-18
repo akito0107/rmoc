@@ -2,15 +2,18 @@ package rmoc_test
 
 import (
 	"bytes"
-	"github.com/akito0107/rmoc"
+	"fmt"
 	"io"
 	"os"
 	"testing"
+	"time"
+
+	"github.com/akito0107/rmoc"
 )
 
 func TestCreateFileWithAbort(t *testing.T) {
 	buf := bytes.NewBufferString("test")
-	err:= rmoc.CreateFileWithAbort(buf, "testdata", "dummy")
+	err := rmoc.CreateFileWithAbort(buf, "testdata", "dummy")
 
 	if ok, _ := rmoc.IsFileAlreadyExists(err); !ok {
 		t.Errorf("error must be FileAlreadyExists byt %+v", err)
@@ -18,9 +21,14 @@ func TestCreateFileWithAbort(t *testing.T) {
 }
 
 func TestOverrideFile(t *testing.T) {
+	filename := "testdata/override.txt"
+	ts := fmt.Sprint(time.Now())
 	func() {
+		if _, err := os.Stat(filename); !os.IsNotExist(err) {
+			os.Remove(filename)
+		}
 		pre := bytes.NewBufferString("pre")
-		out, err := os.Create("testdata/override.txt")
+		out, err := os.Create(filename)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -28,12 +36,12 @@ func TestOverrideFile(t *testing.T) {
 		io.Copy(out, pre)
 	}()
 
-	after := bytes.NewBufferString("after")
+	after := bytes.NewBufferString(ts)
 	if err := rmoc.OverrideFile(after, "testdata", "override.txt"); err != nil {
 		t.Fatal(err)
 	}
 
-	f, err := os.Open("testdata/override.txt")
+	f, err := os.Open(filename)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -42,7 +50,7 @@ func TestOverrideFile(t *testing.T) {
 	var dist bytes.Buffer
 	io.Copy(&dist, f)
 
-	if dist.String() != "after" {
+	if dist.String() != ts {
 		t.Errorf("File contents must be after but %s", dist.String())
 	}
 

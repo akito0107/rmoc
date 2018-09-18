@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 )
 
-
 func OverrideFile(src io.Reader, path, filename string) error {
 	name := filepath.Join(path, filename)
 	if _, err := os.Stat(name); !os.IsNotExist(err) {
